@@ -1,4 +1,3 @@
-// import samplePlayer from 'https://cdn.jsdelivr.net/npm/sample-player@0.5.5/+esm'
 import {
   DrumMachine,
   ElectricPiano,
@@ -413,30 +412,58 @@ const kVersilianInstrumentsNames = [
   "Membranophones/Struck Membranophones/Legacy Snares - Keyswitch"
 ];
 
-let ac;
-const instruments = {};
+let ac = null;
 
 const getAc = () => {
-  if (ac === undefined) {
+  if (ac === null) {
     ac = new AudioContext();
   }
   return ac;
-};
+}
 
-export const load = async (name) => {
-  if (kSoundfontNames.includes(name)) {
-    instruments[name] = await new Soundfont(getAc(), { instrument: name }).load;
+
+class Instrument {
+  constructor(name) {
+    this.name = name;
+    this.instrument = null;
   }
+
+  async load() {
+    if (this.instrument === null) {
+      if (kSoundfontNames.includes(this.name)) {
+        console.log(`Music: loading Soundfont instrument "${this.name}"`);
+        this.instrument = await new Soundfont(getAc(), { instrument: this.name }).load;
+      }
+    }
+    return this.instrument;
+  }
+
+  async play(duration, music) {
+    const ac = getAc();
+    const instrument = await this.load();
+    const now = ac.currentTime;
+    const notes = music.split(/\s/g);
+    let time = now;
+    for (const note of notes) {
+      if (note !== '--') {
+        instrument.start({ note, time, duration });
+      }
+      time += duration;
+    }
+  }
+}
+
+const instruments = {};
+
+export const instrument = (name) => {
+  if (!instruments[name]) {
+    instruments[name] = new Instrument(name);
+  }
+  return instruments[name];
 };
 
-export const play = async (name, duration, music) => {
-  const now = getAc().currentTime;
-  const notes = music.split(' ');
-  let time = now;
-  for (const note of notes) {
-    if (note !== '--') {
-      instruments[name].start({ note, time, duration });
-    }
-    time += duration;
+export const load = async () => {
+  for (const [name, instrument] of Object.entries(instruments)) {
+    await instrument.load();
   }
 };

@@ -1,9 +1,11 @@
-export const onClick = (id, op) => document.getElementById(id).addEventListener('click', op);
+export const el = (id) => document.getElementById(id);
+
+export const onClick = (id, op) => el(id).addEventListener('click', op);
 
 export const hide = (id) => {
-  document.getElementById(id).style.display = 'none';
+  el(id).style.display = 'none';
 };
 
 export const show = (id) => {
-  document.getElementById(id).style.display = null;
+  el(id).style.display = null;
 };
