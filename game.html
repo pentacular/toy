@@ -1,0 +1,55 @@
+<html>
+ <body>
+  <canvas id="game" width=200 height=200 style="border: solid black 1px"/>
+  <script type="module">
+   import { draw } from './draw.js';
+   import { wait } from './el.js';
+
+   class Ball {
+     constructor (x, y, velocityX, velocityY) {
+       this.velocityX = velocityX;
+       this.velocityY = velocityY;
+       this.lastX = 0;
+       this.lastY = 0;
+       this.x = x;
+       this.y = y;
+     }
+
+     go() {
+       this.lastX = this.x;
+       this.lastY = this.y;
+       for (;;) {
+         const nextX = this.x + this.velocityX;
+         const nextY = this.y + this.velocityY;
+         if (nextX < 0 || nextX >= 200) {
+           this.velocityX *= -1;
+           continue;
+         }
+         if (nextY < 0 || nextY >= 200) {
+           this.velocityY *= -1;
+           continue;
+         }
+         this.x += this.velocityX;
+         this.y += this.velocityY;
+         draw('game').line('red', this.x, this.y, this.lastX, this.lastY);
+         break;
+       }
+     }
+   }
+
+   const randomNumber = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+   const balls = [
+     new Ball(randomNumber(0, 200), randomNumber(0, 200), randomNumber(-1, 1), randomNumber(1, -1)),
+     new Ball(randomNumber(0, 200), randomNumber(0, 200), randomNumber(-1, 1), randomNumber(1, -1))
+   ];
+
+   for (;;) {
+     for (const ball of balls) {
+       ball.go();
+     }
+     await wait(100);
+   }
+  </script>
+ </body>
+</html>

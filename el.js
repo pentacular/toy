@@ -9,3 +9,7 @@ export const hide = (id) => {
 export const show = (id) => {
   el(id).style.display = null;
 };
+
+export const wait = (ms) => {
+  return new Promise((resolve, reject) => setTimeout(resolve, ms));
+};
